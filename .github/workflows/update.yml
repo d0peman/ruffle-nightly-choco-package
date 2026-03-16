@@ -16,8 +16,7 @@ jobs:
 
       - name: Run update script
         shell: pwsh
-        run: |
-          ./tools/update.ps1
+        run: ./tools/update.ps1
 
       - name: Install Chocolatey
         shell: pwsh
@@ -25,11 +24,37 @@ jobs:
           Set-ExecutionPolicy Bypass -Scope Process -Force
           iex ((New-Object Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
 
+      - name: Read version from nuspec
+        id: version
+        shell: pwsh
+        run: |
+          [xml]$nuspec = Get-Content ruffle-nightly.nuspec
+          $version = $nuspec.package.metadata.version
+          echo "version=$version" >> $env:GITHUB_OUTPUT
+
+      - name: Check if version already exists
+        id: check
+        shell: pwsh
+        run: |
+          $version = "${{ steps.version.outputs.version }}"
+          $id = "ruffle-nightly"
+
+          $url = "https://community.chocolatey.org/api/v2/Packages()?\$filter=Id eq '$id' and Version eq '$version'"
+          $result = Invoke-RestMethod $url
+
+          if ($result.value.Count -gt 0) {
+              echo "exists=true" >> $env:GITHUB_OUTPUT
+          } else {
+              echo "exists=false" >> $env:GITHUB_OUTPUT
+          }
+
       - name: Pack package
+        if: steps.check.outputs.exists == 'false'
         shell: pwsh
         run: choco pack
 
       - name: Test installation
+        if: steps.check.outputs.exists == 'false'
         shell: pwsh
         run: |
           $pkg = Get-ChildItem *.nupkg | Select-Object -First 1
@@ -37,6 +62,7 @@ jobs:
           choco uninstall ruffle-nightly -y
 
       - name: Push package
+        if: steps.check.outputs.exists == 'false'
         shell: pwsh
         env:
           CHOCO_API_KEY: ${{ secrets.CHOCO_API_KEY }}
