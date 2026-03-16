@@ -3,6 +3,17 @@ $repoOwner = "ruffle-rs"
 $repoName  = "ruffle"
 $apiUrl    = "https://api.github.com/repos/$repoOwner/$repoName/releases"
 
+# Path variables
+$templateFile = ".\tools\chocolateyinstall.ps1.template"
+$targetFile   = ".\tools\chocolateyinstall.ps1"
+
+# Ensure the target file exists
+if (-Not (Test-Path $targetFile)) {
+    Copy-Item -Path $templateFile -Destination $targetFile
+} else {
+    Copy-Item -Path $templateFile -Destination $targetFile -Force
+}
+
 # Fetch releases
 $releases = Invoke-RestMethod -Uri $apiUrl -UseBasicParsing
 
@@ -10,7 +21,7 @@ $releases = Invoke-RestMethod -Uri $apiUrl -UseBasicParsing
 $latest = $releases | Where-Object { $_.prerelease -eq $true } | Select-Object -First 1
 if (-not $latest) { throw "No nightly (prerelease) found." }
 
-# --- Find assets and their digests ---
+# Find assets and their digests
 $asset64 = $latest.assets | Where-Object { $_.name -match "windows-x86_64.zip" } | Select-Object -First 1
 $asset32 = $latest.assets | Where-Object { $_.name -match "windows-x86_32.zip" } | Select-Object -First 1
 
@@ -22,7 +33,7 @@ $url32 = $asset32.browser_download_url
 $checksum64 = $asset64.digest -replace '^sha256:',''
 $checksum32 = $asset32.digest -replace '^sha256:',''
 
-# --- Extract version number from URL ---
+# Extract version number from URL
 $version = ($url64 -split "ruffle-nightly-")[1] -replace "-windows.*","" -replace "_","."
 
 (Get-Content .\tools\chocolateyinstall.ps1) |
@@ -33,7 +44,6 @@ $version = ($url64 -split "ruffle-nightly-")[1] -replace "-windows.*","" -replac
            -replace 'CHECKSUM64_REPLACED_BY_UPDATER', $checksum64
     } | Set-Content .\tools\chocolateyinstall.ps1
 
-# --- After you set $Latest.Version ---
 $nuspecPath = ".\ruffle-nightly.nuspec"
 
 if (-not (Test-Path $nuspecPath)) {
