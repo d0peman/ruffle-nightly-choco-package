@@ -1,0 +1,44 @@
+name: Update Chocolatey Package
+
+on:
+  schedule:
+    - cron: "0 3 * * *"   # runs daily at 03:00 UTC
+  workflow_dispatch:       # allows manual trigger
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run update script
+        shell: pwsh
+        run: |
+          ./tools/update.ps1
+
+      - name: Install Chocolatey
+        shell: pwsh
+        run: |
+          Set-ExecutionPolicy Bypass -Scope Process -Force
+          iex ((New-Object Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+
+      - name: Pack package
+        shell: pwsh
+        run: choco pack
+
+      - name: Test installation
+        shell: pwsh
+        run: |
+          $pkg = Get-ChildItem *.nupkg | Select-Object -First 1
+          choco install $pkg.FullName -s . -y
+          choco uninstall ruffle-nightly -y
+
+      - name: Push package
+        shell: pwsh
+        env:
+          CHOCO_API_KEY: ${{ secrets.CHOCO_API_KEY }}
+        run: |
+          choco push *.nupkg -k $env:CHOCO_API_KEY -s https://push.chocolatey.org/
