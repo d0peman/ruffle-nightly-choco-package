@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<package>
+  <metadata>
+    <id>ruffle-nightly</id>
+    <version>2026.03.15</version>
+    <title>Ruffle (Nightly)</title>
+    <authors>Ruffle Team</authors>
+
+    <iconUrl>https://avatars.githubusercontent.com/u/50037962</iconUrl>
+
+    <projectUrl>https://github.com/ruffle-rs/ruffle</projectUrl>
+    <docsUrl>https://github.com/ruffle-rs/ruffle/wiki</docsUrl>
+    <bugTrackerUrl>https://github.com/ruffle-rs/ruffle/issues</bugTrackerUrl>
+    <projectSourceUrl>https://github.com/ruffle-rs/ruffle</projectSourceUrl>
+    <releaseNotes>https://github.com/ruffle-rs/ruffle/releases</releaseNotes>
+    <licenseUrl>https://github.com/ruffle-rs/ruffle/blob/master/LICENSE.md</licenseUrl>
+
+    <summary>Flash Player emulator written in Rust</summary>
+
+    <description>
+Ruffle is an open-source Flash Player emulator written in Rust that allows legacy SWF content to run without the original Adobe Flash Player. It enables Flash games, animations, and applications to run safely on modern systems while preserving historical Flash content.
+
+This package installs the Windows **nightly desktop build** of Ruffle. Nightly builds are automatically produced from the latest development commits and may include new features, improvements, and experimental changes that are not yet part of a stable release.
+
+Two installation modes are available:
+
+• **Default install** – installs the nightly build using Chocolatey.
+• **Portable install** – install using: `choco install ruffle-nightly --params "/portable"`.
+
+Nightly builds are intended for testing and early access to development changes and may be less stable than future stable releases.
+    </description>
+
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <tags>ruffle flash player emulator nightly rust</tags>
+  </metadata>
+</package>
