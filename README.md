@@ -1,4 +1,4 @@
-﻿# ruffle-nightly Chocolatey Package
+﻿# Ruffle Nightly Chocolatey Package (ruffle-nightly)
 
 This repository contains the Chocolatey packaging files for **Ruffle Nightly**.
 
