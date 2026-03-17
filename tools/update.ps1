@@ -15,7 +15,12 @@ if (-Not (Test-Path $targetFile)) {
 }
 
 # Fetch releases
-$releases = Invoke-RestMethod -Uri $apiUrl -UseBasicParsing
+$headers = @{
+    Authorization = "Bearer $env:GITHUB_TOKEN"
+    Accept        = "application/vnd.github+json"
+}
+
+$releases = Invoke-RestMethod -Uri $apiUrl -Headers $headers
 
 # Pick the latest nightly (prerelease)
 $latest = $releases | Where-Object { $_.prerelease -eq $true } | Select-Object -First 1
