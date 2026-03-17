@@ -53,13 +53,15 @@ jobs:
         shell: pwsh
         run: choco pack
 
-      - name: Test installation
+      - name: Test install
         if: steps.check.outputs.exists == 'false'
         shell: pwsh
         run: |
           $pkg = Get-ChildItem *.nupkg | Select-Object -First 1
-          choco install $pkg.FullName -s . -y
-          choco uninstall ruffle-nightly -y
+          $version = $pkg.BaseName -replace '^ruffle-nightly\.',''
+      
+          choco install ruffle-nightly --version $version --source . -y --no-progress
+          choco uninstall ruffle-nightly -y --no-progress
 
       - name: Push package
         if: steps.check.outputs.exists == 'false'
