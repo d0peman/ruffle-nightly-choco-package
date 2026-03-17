@@ -53,7 +53,13 @@ jobs:
       - name: Pack package
         if: steps.check.outputs.exists == 'false'
         shell: pwsh
-        run: choco pack
+        run: |
+          choco pack ruffle-nightly.nuspec --outputdirectory .
+      
+          $pkg = Get-ChildItem *.nupkg | Select-Object -First 1
+          if (-not $pkg) {
+              throw "Package was not created."
+          }
 
       - name: Test install
         if: steps.check.outputs.exists == 'false'
